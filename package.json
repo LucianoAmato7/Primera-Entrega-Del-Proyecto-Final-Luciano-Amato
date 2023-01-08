@@ -1,0 +1,16 @@
+{
+    "type": "module",
+    "name": "PrimeraEntregaProyectoFinal",
+    "version": "1.0.0",
+    "description": "Una api con productos y carrito",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo Error: no test specified  && exit PrimeraEntregaProyectoFinal"
+    },
+    "keywords": [],
+    "author": "Luciano Amato",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.1"
+    }
+}

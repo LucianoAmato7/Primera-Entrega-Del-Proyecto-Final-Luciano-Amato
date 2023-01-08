@@ -1,0 +1,12 @@
+[
+	{
+		"id": 1,
+		"timestamp": "7/1/2023 16:12:35",
+		"name": "Iphone 14 Pro Max",
+		"description": "smartphone",
+		"code": 999,
+		"thumbnail": "https://i.ibb.co/KGKjZBG/i14-Pro-Max.png",
+		"price": 1650,
+		"stock": 10
+	}
+]
