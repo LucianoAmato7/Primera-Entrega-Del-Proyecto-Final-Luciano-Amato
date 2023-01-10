@@ -39,10 +39,9 @@ class ApiProducts {
 
     }
 
-    // AL CARCAR UN PRODUCTO NUEVO, EL ID, CODE Y TIMESTAMP, SE CREARAN EN AUTOMATICO. EL RESTO LOS INGRESARA EL ADMIN.
+    // AL CREAR UN PRODUCTO NUEVO, EL ID, CODE Y TIMESTAMP, SE CREARAN EN AUTOMATICO. EL RESTO LOS INGRESARA EL ADMIN.
     saveProd( newProd ){
 
-        //VER FUNCIONALIDAD PARA QUE NO SE LLEGUE A REPETIR EL NUMERO DE CODIGO.
         function random(min, max) {
             return Math.floor((Math.random() * (max - min + 1)) + min);
         }

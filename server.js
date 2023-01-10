@@ -14,10 +14,9 @@ router.use(express.json());
 
 router.use(express.urlencoded({extended: true}));
 
-app.use(express.static('public'));
-
 app.use('/api', router)
 
+//VARIABLE BOOLEANA PARA EL ADMIN
 let admin = true
 
 
@@ -27,8 +26,8 @@ let admin = true
 
 //devuelve todos los productos
 router.get('/products', (req, res) => {   
-    
-    res.json( apiProds.productsAll() )
+
+    admin ? res.json( apiProds.productsAll() ) : res.json( {error : -1, description: "ruta 'api/products' método 'GET' no autorizada"} )
     
 })
 
@@ -36,9 +35,17 @@ router.get('/products', (req, res) => {
 // devuelve un producto según su id
 router.get('/products/:id', (req, res) => {
     
-    let { id } = req.params
+    if(admin) {
+        
+        let { id } = req.params
+    
+        res.json( apiProds.prodById( id ) )
 
-    res.json( apiProds.prodById( id ) )
+    }else {
+
+        res.json( {error : -1, description: "ruta '/api/products' método 'GET' no autorizada"} )
+
+    }
 
 })
 
@@ -46,9 +53,17 @@ router.get('/products/:id', (req, res) => {
 //recibe y agrega un producto, y lo devuelve con su id asignado. ( POR MEDIO DEL FORM ( "http://localhost:8080/" ) )
 router.post('/products', (req, res) => {
     
-    let newProd = req.body
-    
-    res.json( apiProds.saveProd( newProd ) )
+    if(admin) {
+
+        let newProd = req.body
+        
+        res.json( apiProds.saveProd( newProd ) )
+
+    }else {
+
+        res.json( {error : -1, description: "ruta '/api/products' método 'POST' no autorizada"} )
+
+    }
     
 })
 
@@ -56,21 +71,37 @@ router.post('/products', (req, res) => {
 //recibe y actualiza un producto según su id.
 router.put('/products/:id', (req, res) => {
 
-    let { id } = req.params
+    if(admin){
 
-    let prod = req.body
+        let { id } = req.params
+    
+        let prod = req.body
+    
+        res.json( apiProds.updateProd( prod, id ) )
 
-    res.json( apiProds.updateProd( prod, id ) )
+    }else {
+
+        res.json( {error : -1, description: "ruta '/api/products' método 'PUT' no autorizada"} )
+
+    }
 
 })
 
 
 //elimina un producto según su id.
-router.delete('/products/:id', (req, res) =>{
+router.delete('/products/:id', (req, res) => {
     
-    let { id } = req.params
-    
-    res.json( apiProds.deleteProdById( id ) )
+    if(admin){
+
+        let { id } = req.params
+        
+        res.json( apiProds.deleteProdById( id ) )
+
+    }else {
+
+        res.json( {error : -1, description: "ruta '/api/products' método 'DELETE' no autorizada"} )
+
+    }
 
 })
 
@@ -85,8 +116,9 @@ router.post('/cart', (req, res) => {
     
 })
 
+
 //Vacía un carrito y lo elimina.
-router.delete('/cart/:id', (req, res) =>{
+router.delete('/cart/:id', (req, res) => {
     
     let { id } = req.params
     
@@ -94,7 +126,8 @@ router.delete('/cart/:id', (req, res) =>{
 
 })
 
-//Me permite listar todos los productos guardados en el carrito.
+
+//Me permite listar todos los productos que tiene el carrito con dicho id.
 router.get('/cart/:id/products', (req, res) => {   
     
     let { id } = req.params
@@ -103,17 +136,20 @@ router.get('/cart/:id/products', (req, res) => {
     
 })
 
-//Para incorporar productos al carrito por su id de producto
-router.post('/cart/:id/products', (req, res) =>{
+
+//Para incorporar productos al carrito.
+router.post('/cart/:id_cart/products/:id_prod', (req, res) => {
     
-    let { id } = req.params
+    let { id_cart } = req.params
+    let { id_prod } = req.params
     
-    res.json( apiCart.addProdToCart( id ) )
+    res.json( apiCart.addProdToCart( id_cart, id_prod) )
 
 })
 
-//Eliminar un producto del carrito por su id de carrito y de producto
-router.delete('cart/:id/products/:id_prod', (req, res) =>{
+
+//Eliminar un producto del carrito por su id de carrito y de producto.
+router.delete('/cart/:id/products/:id_prod', (req, res) => {
 
     let { id } = req.params
     let { id_prod } = req.params
@@ -123,7 +159,17 @@ router.delete('cart/:id/products/:id_prod', (req, res) =>{
 })
 
 
+//En el caso de requerir una ruta no implementada en el servidor:
+app.use("*", (req, res) => {
 
+    let fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
+    
+    res.status(404).send({
+        error: -2,
+        description: `ruta ${fullUrl} método ${req.method} no implementada`
+    });
+
+});
 
 
 //INICIAMOS EL SERVIDOR

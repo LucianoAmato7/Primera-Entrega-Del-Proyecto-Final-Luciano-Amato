@@ -12,7 +12,6 @@ class ApiCart {
         this.carts = cartTxt
     }
 
-    //POST
     //Crea un carrito y devuelve su id.
     createCart () {
 
@@ -22,7 +21,7 @@ class ApiCart {
 
         let date = new Date().toLocaleString()
         
-        let newCart = {id: id, timestamp: date}
+        let newCart = {id: id, timestamp: date, products: []}
 
         this.carts.push(newCart)
 
@@ -50,7 +49,6 @@ class ApiCart {
 
     }
 
-    //DELETE
     //Vacía un carrito y lo elimina
     deleteCart( id ) {
 
@@ -94,8 +92,7 @@ class ApiCart {
 
     }
 
-    //GET
-    //Me permite listar todos los productos guardados en el carrito
+    //Me permite listar todos los productos que tiene el carrito con dicho id.
     getProdOfCartById( id ) {
 
         let exist = this.carts.some(c => c.id == id)
@@ -106,29 +103,18 @@ class ApiCart {
 
     }
 
-    //POST
-    //Para incorporar productos al carrito por su id de producto
-    //AGREGA PRODUCTOS AL ULTIMO CARRITO CREADO
-    addProdToCart( id ) {
+    //Para incorporar productos al carrito.
+    addProdToCart( id_cart, id_prod ) {
 
-        let prod = apiProds.prodById(id)
+        let prodById = apiProds.prodById(id_prod)
 
-        let lastElement = this.carts.length -1;
+        let cartById = this.carts.find(c => c.id == id_cart)
 
-        if(this.carts[lastElement].products){
+        let indexOfCart = this.carts.indexOf( cartById )
 
-            //VER COMO AGREGAR MAS DE 1 PRODUCTO
-
-        } else {
-
-            this.carts[lastElement] = {...this.carts[lastElement], products: [prod]}
+        this.carts[indexOfCart].products.push(prodById)
         
-        }
-        
-
         let updatedData = this.carts
-
-        console.log(prod);
 
         async function addProdToCart_()  {
     
@@ -136,7 +122,7 @@ class ApiCart {
 
                 await fs.promises.writeFile('./api/data/cart.txt', JSON.stringify( updatedData, null, '\t'))
 
-                console.log(`producto con id: ${id}, ha sido agergado al carrito`);
+                console.log(`producto con id ${id_prod}, ha sido agregado al carrito con id ${id_cart}`);
 
             }catch (err) {
 
@@ -152,49 +138,66 @@ class ApiCart {
 
     }
 
-    //DELETE
     //Eliminar un producto del carrito por su id de carrito y de producto
     deleteProdFromCart( id, id_prod ) {
 
-        let prod = api.prodById(id_prod)
+        let prod = apiProds.prodById(id_prod)
+        
+        let cartById = this.carts.find(c => c.id == id);
 
-        let cart = this.carts.filter(c => c.id == id);
+        if(cartById) {
 
-        if(cart.length > 0){
+            if(cartById.products.length > 0){
 
-            let exist = this.cart.some( p => p.id == id_prod )
+                let exist = cartById.products.some( p => p.id == id_prod )
 
-            if(exist) {
-                
-                cart.filter(p => p !== prod)
+                if(exist) {
+    
+                    let indexOfProd = cartById.products.indexOf( prod );
 
-                let updatedCart = this.carts
+                    let indexOfCart = this.carts.indexOf( cartById )
+                    
+                    this.carts[indexOfCart].products.splice( indexOfProd, 1 )
 
-                //PROBAR SI SE ELIMINO EL PRODUCTO
-                console.log(updatedCart);
+                    let updatedData = this.carts
 
-                //VER COMO SIGUE
+                    async function deleteProdFromCart_()  {
+    
+                        try{
+            
+                            await fs.promises.writeFile('./api/data/cart.txt', JSON.stringify( updatedData, null, '\t'))
+            
+                            console.log(`producto con id: ${id_prod}, ha sido eliminado del carrito con id ${id}`);
+            
+                        }catch (err) {
+            
+                            console.log(`Se ha producido un error: ${err}`);
+            
+                        } 
+                        
+                    }
+            
+                    deleteProdFromCart_()
 
-                //SOBREESCRIPBIT ARCHIVO DE TEXTO
+                    return this.carts
+
+                } else {
+
+                    console.log({error: 'el producto que desea eliminar no existe'});
+
+                }
 
             } else {
 
-                console.log('el producto que desea eliminar no existe');
+                console.log({error: `El carrito con id: ${id}, se encuentra vacío`});
 
             }
 
+        }else {
 
-
-        } else {
-
-            deleteCart( id )
-
-            console.log(`Se elimino el carrito con id: ${id}, ya que el mismo no poseia productos`);
+            console.log({error: 'El carrito del cual desea eliminar un producto, no existe'});
 
         }
-
-
-
 
     }
 
